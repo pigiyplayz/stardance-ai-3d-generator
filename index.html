@@ -3,57 +3,71 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Stardance AI 3D Print Model Generator — Devlog</title>
-    <style>
-      body { font-family: Inter, system-ui, -apple-system, Arial, sans-serif; margin: 32px; color:#0f1724; background: #f7fbff; }
-      main { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 28px; box-shadow: 0 10px 30px rgba(12,20,40,0.06); }
-      header h1 { margin: 0 0 6px 0; font-size: 1.8rem; }
-      header p.lead { margin: 6px 0 18px 0; color:#53627a }
-      section { margin-top: 18px }
-      .devlog-entry { border-left: 3px solid #2b6cb0; padding: 12px 16px; margin-bottom: 12px; background: linear-gradient(180deg,#f8fbff, #ffffff);} 
-      .meta { color:#6b7280; font-size:0.9rem }
-      pre.cmd { background:#0b1220; color:#cdeffd; padding:12px; border-radius:8px; overflow:auto }
-      a.button { display:inline-block; background:#2b6cb0; color:white; padding:10px 14px; border-radius:8px; text-decoration:none }
-    </style>
+    <title>Stardance AI 3D Print Model Generator</title>
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <main>
-      <header>
-        <h1>Stardance AI 3D Print Model Generator</h1>
-        <p class="lead">This page is your public-facing project home and daily development log. Update the Devlog below each day with progress notes, links, and next actions.</p>
+    <div class="page">
+      <header class="hero">
+        <div class="hero-inner">
+          <h1>AI 3D Print Model Generator</h1>
+          <p class="tag">Type a short creative prompt and get a printable 3D model. (Demo coming soon)</p>
+        </div>
       </header>
 
-      <section>
-        <h2>Current status</h2>
-        <p>The Stardance AI 3D Print Model Generator is an in-development web project that will let users enter creative text prompts and receive simple, 3D-printable models (STL) ready for download. This site is the public project home and daily devlog — check back to see progress and new features.</p>
-      </section>
+      <main class="layout">
+        <section class="controls">
+          <label class="field">
+            <span>Prompt</span>
+            <textarea id="promptInput" placeholder="e.g. lunar emblem with star core"></textarea>
+          </label>
 
-      <section>
-        <h2>Devlog (public updates)</h2>
-        <p>Below are short public updates recording progress. These entries are written for visitors to follow the project's evolution.</p>
+          <div class="row">
+            <label class="field small">
+              <span>Style</span>
+              <select id="styleSelect">
+                <option value="sculptural">Sculptural</option>
+                <option value="tech">Tech</option>
+                <option value="nature">Nature</option>
+                <option value="futuristic">Futuristic</option>
+              </select>
+            </label>
 
-        <div id="devlog">
-          <div class="devlog-entry">
-            <div class="meta">Day 1 — Prepare &mdash; <time>2026-06-02</time></div>
-            <ul>
-              <li>Public homepage and devlog created to track the project.</li>
-              <li>Repository hygiene items were added and the workspace was cleaned for a fresh start.</li>
-              <li>Future updates will show demo links, screenshots, and downloadable STL examples as they become available.</li>
-            </ul>
+            <label class="field small">
+              <span>Complexity</span>
+              <input id="complexityRange" type="range" min="1" max="10" value="5">
+            </label>
           </div>
-        </div>
-      </section>
 
-      <section>
-        <h2>How this will work (overview for visitors)</h2>
-        <ul>
-          <li>Type a creative prompt describing a small emblem, badge, or trinket.</li>
-          <li>The site will convert text into parametric model rules and render a 3D preview.</li>
-          <li>When ready, users will be able to export the design as an STL file for 3D printing.</li>
-        </ul>
-        <p>Note: the interactive generator is not yet enabled — this page will be updated with a live demo and export links once completed.</p>
-      </section>
+          <div class="actions">
+            <button id="generateButton" class="btn primary">Generate</button>
+            <button id="exportButton" class="btn" disabled>Export STL</button>
+          </div>
 
-    </main>
+          <p id="statusText" class="status">Ready</p>
+        </section>
+
+        <section class="preview">
+          <div id="previewContainer" class="preview-card"></div>
+        </section>
+      </main>
+
+      <footer class="devlog">
+        <h2>Devlog</h2>
+        <article class="entry">
+          <header><strong>Day 2 — UI skeleton</strong> <time>2026-06-03</time></header>
+          <ul>
+            <li>Added a modern UI skeleton with prompt controls and preview placeholder.</li>
+            <li>Wired minimal front-end behavior: mock preview generation and export placeholder.</li>
+            <li>Next: reintroduce Three.js preview and actual STL export.</li>
+          </ul>
+        </article>
+      </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/exporters/STLExporter.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>
