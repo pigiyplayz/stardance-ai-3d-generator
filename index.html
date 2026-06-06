@@ -1,73 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Stardance AI 3D Print Model Generator</title>
-    <link rel="stylesheet" href="styles.css">
-  </head>
-  <body>
-    <div class="page">
-      <header class="hero">
-        <div class="hero-inner">
-          <h1>AI 3D Print Model Generator</h1>
-          <p class="tag">Type a short creative prompt and get a printable 3D model. (Demo coming soon)</p>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SYSADMIN_SYS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .crt-glow {
+      text-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+    }
+    .scanlines {
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      background-size: 100% 4px, 6px 100%;
+    }
+  </style>
+</head>
+<body class="bg-black text-green-500 font-mono min-h-screen p-6 flex flex-col scanlines selection:bg-green-900 selection:text-green-300">
+
+  <header class="max-w-4xl w-full mx-auto border-b border-green-900 pb-4 mb-6 flex justify-between items-center crt-glow">
+    <h1 class="text-xl font-bold tracking-widest">SYSADMIN_SYS_v1.1.0</h1>
+    <div id="gameTimer" class="text-sm font-bold border border-green-900 px-3 py-1 hidden">TIME: 00:00</div>
+  </header>
+
+  <main id="menuScreen" class="max-w-lg w-full mx-auto bg-zinc-950 border border-green-900 rounded p-6 shadow-2xl my-auto">
+    <h2 class="text-center text-lg font-bold mb-6 uppercase tracking-wider crt-glow">Initialize Simulation Protocol</h2>
+    
+    <div class="space-y-6">
+      <div>
+        <label class="block text-xs text-green-700 uppercase mb-2 font-bold">1. Target Architecture (OS):</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="setOS('linux')" id="btn-linux" class="border px-3 py-2 text-xs rounded font-bold transition-colors">Linux Bash</button>
+          <button onclick="setOS('windows')" id="btn-windows" class="border px-3 py-2 text-xs rounded font-bold transition-colors">Win PowerShell</button>
+          <button onclick="setOS('macos')" id="btn-macos" class="border px-3 py-2 text-xs rounded font-bold transition-colors">macOS Zsh</button>
         </div>
-      </header>
+      </div>
 
-      <main class="layout">
-        <section class="controls">
-          <label class="field">
-            <span>Prompt</span>
-            <textarea id="promptInput" placeholder="e.g. lunar emblem with star core"></textarea>
-          </label>
+      <div>
+        <label class="block text-xs text-green-700 uppercase mb-2 font-bold">2. Select Scenario Ticket:</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="setLevel(1)" id="btn-level-1" class="border px-3 py-2 text-xs rounded font-bold transition-colors">Level 1</button>
+          <button onclick="setLevel(2)" id="btn-level-2" class="border px-3 py-2 text-xs rounded font-bold transition-colors">Level 2</button>
+          <button onclick="setLevel(3)" id="btn-level-3" class="border px-3 py-2 text-xs rounded font-bold transition-colors">Level 3</button>
+        </div>
+      </div>
 
-          <div class="row">
-            <label class="field small">
-              <span>Style</span>
-              <select id="styleSelect">
-                <option value="sculptural">Sculptural</option>
-                <option value="tech">Tech</option>
-                <option value="nature">Nature</option>
-                <option value="futuristic">Futuristic</option>
-              </select>
-            </label>
+      <button onclick="startGame()" class="w-full border-2 border-green-500 bg-green-900/20 hover:bg-green-500 hover:text-black font-black text-center py-3 uppercase tracking-widest transition-all crt-glow">
+        INITIALIZE INTERFACE
+      </button>
+    </div>
+  </main>
 
-            <label class="field small">
-              <span>Complexity</span>
-              <input id="complexityRange" type="range" min="1" max="10" value="5">
-            </label>
-          </div>
-
-          <div class="actions">
-            <button id="generateButton" class="btn primary">Generate</button>
-            <button id="exportButton" class="btn" disabled>Export STL</button>
-          </div>
-
-          <p id="statusText" class="status">Ready</p>
-        </section>
-
-        <section class="preview">
-          <div id="previewContainer" class="preview-card"></div>
-        </section>
-      </main>
-
-      <footer class="devlog">
-        <h2>Devlog</h2>
-        <article class="entry">
-          <header><strong>Day 2 — UI skeleton</strong> <time>2026-06-03</time></header>
-          <ul>
-            <li>Added a modern UI skeleton with prompt controls and preview placeholder.</li>
-            <li>Wired minimal front-end behavior: mock preview generation and export placeholder.</li>
-            <li>Next: reintroduce Three.js preview and actual STL export.</li>
-          </ul>
-        </article>
-      </footer>
+  <main id="terminalScreen" class="max-w-4xl w-full mx-auto flex-1 bg-zinc-950 border border-green-900 rounded p-4 shadow-2xl flex flex-col hidden">
+    <div class="border border-green-900 bg-green-950/10 p-3 mb-4 text-xs leading-relaxed">
+      <span class="text-yellow-500 font-bold">INCOMING INCIDENT REPORT:</span>
+      <p id="ticketDescription" class="mt-1 text-green-400"></p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/exporters/STLExporter.js"></script>
-    <script src="app.js"></script>
-  </body>
+    <div id="terminalOutput" class="flex-1 overflow-y-auto text-xs p-2 space-y-2 font-mono max-h-[380px] mb-4 border border-zinc-900 rounded bg-black/60">
+      <div class="text-green-700">Initializing environment core assets... Done.</div>
+      <div class="text-green-700">Type 'help' to check target systems layout maps.</div>
+    </div>
+
+    <div class="flex items-center gap-2 border-t border-green-900 pt-3">
+      <span id="terminalPrompt" class="text-xs font-bold text-green-400"></span>
+      <input 
+        type="text" 
+        id="terminalInput" 
+        class="flex-1 bg-transparent text-xs font-mono text-green-400 focus:outline-none placeholder-green-900" 
+        placeholder="Type command here..."
+        autofocus
+      />
+    </div>
+  </main>
+
+  <main id="leaderboardScreen" class="max-w-md w-full mx-auto bg-zinc-950 border border-green-900 rounded p-6 shadow-2xl my-auto hidden">
+    <h2 class="text-center text-lg font-bold mb-2 uppercase tracking-wider text-yellow-500 crt-glow">Protocol Complete</h2>
+    <p id="finalTimeMessage" class="text-center text-xs text-green-400 mb-6"></p>
+
+    <div id="nameEntryArea" class="mb-6 space-y-2">
+      <label class="block text-xs uppercase text-green-700 font-bold">Transmit Score to Leaderboard Ledger:</label>
+      <div class="flex gap-2">
+        <input type="text" id="playerNameInput" maxlength="12" placeholder="CALLSIGN" class="bg-black border border-green-900 rounded px-3 py-2 text-sm text-green-400 focus:outline-none focus:border-green-500 flex-1 uppercase font-mono">
+        <button onclick="submitScore()" class="border border-green-500 px-4 py-2 text-xs font-bold hover:bg-green-500 hover:text-black transition-all">SUBMIT</button>
+      </div>
+    </div>
+
+    <div class="border border-green-900 p-4 rounded bg-black/40">
+      <h3 class="text-xs font-bold uppercase text-green-600 border-b border-green-900 pb-1.5 mb-2 tracking-widest">Top Rankings</h3>
+      <div id="leaderboardList" class="text-xs space-y-1.5 font-mono"></div>
+    </div>
+  </main>
+
+  <script>
+    let selectedOS = 'linux';
+    let selectedLevel = 1;
+    let startTime, timerInterval;
+    let stage = 1;
+
+    const database = {
+      linux: {
+        1: {
+          problem: "TICKET: Remote users report a corporate file server is offline. Find the interface that is missing an IP allocation and attach IP address 192.168.1.50/24 to it.",
+          help: "Commands: 'ip link', 'ip addr', 'ip addr add [ip] dev [device]'",
+          diagnose: "eth1: flags=4163<UP,BROADCAST,RUNNING> mtu 1500\n    inet6 fe80::215:5dff:fe00:1a2b/64 scope link\n    ether 00:15:5d:00:1a:2b txqueuelen 1000 (Ethernet)",
+          fixCmd: "ip addr add 192.168.1.50/24 dev eth1",
+          nxtMsg: "IP bound to eth1. Now routing pathways require initialization. Bring the eth1 link UP to complete transaction."
+        },
+        2: {
+          problem: "TICKET: Web infrastructure server is running at 100% capacity. Locate the process container ID hogging resources, then target and end that PID sequence.",
+          help: "Commands: 'ps aux', 'top', 'kill -9 [pid]'",
+          diagnose: "USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND\nroot         1  0.0  0.1  24122  4210 ?        Ss   12:00   0:01 /sbin/init\nwww-data   842 98.4  12.4 512040 98120 ?        R    12:05   4:12 python3 malicious_miner.py",
+          fixCmd: "kill -9 842",
+          nxtMsg: "Process 842 terminated. Main processing loop returned to 2% idle status."
+        },
+        3: {
+          problem: "TICKET: Unauthorized configurations have locked database service pathways. Identify which custom rules are blocking port 3306 inside local system policies, then flush the active firewall chain filters.",
+          help: "Commands: 'iptables -L', 'iptables -F', 'nft list ruleset'",
+          diagnose: "Chain INPUT (policy ACCEPT)\ntarget     prot opt source               destination         \nDROP       tcp  --  anywhere             anywhere             tcp dpt:mysql",
+          fixCmd: "iptables -F",
+          nxtMsg: "Firewall rule arrays flushed. Database connection routes cleared."
+        }
+      },
+      windows: {
+        1: {
+          problem: "TICKET: DNS resolution failures on terminal unit node. Query local adapters to isolate configuration values, then run a flush on the local resolver cache memory store.",
+          help: "Commands: 'Get-NetIPAddress', 'Resolve-DnsName', 'Clear-DnsClientCache'",
+          diagnose: "Cache status: Corrupted entries matching local network gateway resolution pointers.",
+          fixCmd: "Clear-DnsClientCache",
+          nxtMsg: "DNS local database resolver registers cleared."
+        },
+        2: {
+          problem: "TICKET: A persistent service payload named 'MalService' is altering user registry files. Query the active modules, then transition the state configuration of 'MalService' to Stopped.",
+          help: "Commands: 'Get-Service', 'Stop-Service -Name [name]', 'Restart-Service'",
+          diagnose: "Status   Name               DisplayName\n------   ----               -----------\nRunning  MalService         Unauthorized Crypt Driver",
+          fixCmd: "Stop-Service -Name MalService",
+          nxtMsg: "Service execution thread halted."
+        },
+        3: {
+          problem: "TICKET: System administration storage directory access points are rejecting connections. Check permissions blocks on directory 'C:\\SysAdmin', then modify access parameters by granting 'FullControl' access rights to 'Administrator'.",
+          help: "Commands: 'Get-Acl', 'icacls C:\\SysAdmin /grant Administrator:F'",
+          diagnose: "C:\\SysAdmin NT AUTHORITY\\SYSTEM:(I)(OI)(CI)(F)\n            BUILTIN\\Users:(I)(OI)(CI)(R)",
+          fixCmd: "icacls C:\\SysAdmin /grant Administrator:F",
+          nxtMsg: "Directory inheritance modifications committed."
+        }
+      },
+      macos: {
+        1: {
+          problem: "TICKET: Shared developer system shows a rogue daemon bound to local web configurations. Use structural diagnostics to read active internet sockets across port 8080, then terminate process ID 412.",
+          help: "Commands: 'lsof -i :8080', 'netstat -an', 'kill 412'",
+          diagnose: "COMMAND   PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME\npython3   412 root    3u  IPv4  0x1a2b      0t0  TCP *:http-alt (LISTEN)",
+          fixCmd: "kill 412",
+          nxtMsg: "Process port listener dropped."
+        },
+        2: {
+          problem: "TICKET: Shared volumes are failing auto-mount loops. Query drive descriptors, then run a file system checks utility repair pass directly on volume device target '/dev/disk2s1'.",
+          help: "Commands: 'diskutil list', 'fsck_apfs -r /dev/disk2s1'",
+          diagnose: "Volume /dev/disk2s1 flagged unmounted with volume bit errors inside secondary storage catalog entries.",
+          fixCmd: "fsck_apfs -r /dev/disk2s1",
+          nxtMsg: "Storage block array checks validation pass finished."
+        },
+        3: {
+          problem: "TICKET: A modified hidden application profile inside user directory launch paths is changing network parameters. Locate hidden execution nodes, then clear file entry structure at destination '~/.hidden_malware'.",
+          help: "Commands: 'ls -la', 'rm -rf ~/.hidden_malware', 'rmdir'",
+          diagnose: "drwxr-xr-x   3 admin  staff    96 Jun  5 12:00 .\ndrwxr-xr-x+ 15 admin  staff   480 Jun  5 12:00 ..\n-rw-r--r--   1 admin  staff  4096 Jun  5 12:00 .hidden_malware",
+          fixCmd: "rm -rf ~/.hidden_malware",
+          nxtMsg: "Hidden structural deployment path eradicated."
+        }
+      }
+    };
+
+    function setOS(os) {
+      ['linux', 'windows', 'macos'].forEach(o => {
+        const btn = document.getElementById(`btn-${o}`);
+        btn.classList.remove('border-green-500', 'text-green-500');
+        btn.classList.add('border-green-900', 'text-green-700');
+      });
+      const activeBtn = document.getElementById(`btn-${os}`);
+      activeBtn.classList.remove('border-green-900', 'text-green-700');
+      activeBtn.classList.add('border-green-500', 'text-green-500');
+      selectedOS = os;
+    }
+
+    function setLevel(lvl) {
+      [1, 2, 3].forEach(l => {
+        const btn = document.getElementById(`btn-level-${l}`);
+        btn.classList.remove('border-green-500', 'text-green-500');
+        btn.classList.add('border-green-900', 'text-green-700');
+      });
+      const activeBtn = document.getElementById(`btn-level-${lvl}`);
+      activeBtn.classList.remove('border-green-900', 'text-green-700');
+      activeBtn.classList.add('border-green-500', 'text-green-500');
+      selectedLevel = lvl;
+    }
+
+    setOS('linux');
+    setLevel(1);
+
+    function startGame() {
+      document.getElementById('menuScreen').classList.add('hidden');
+      document.getElementById('terminalScreen').classList.remove('hidden');
+      document.getElementById('gameTimer').classList.remove('hidden');
+      
+      const prompts = { linux: "user@linux-node:~$", windows: "PS C:\\Users\\Admin>", macos: "admin@macbook-pro ~ %" };
+      document.getElementById('terminalPrompt').textContent = prompts[selectedOS];
+
+      stage = 1;
+      document.getElementById('ticketDescription').textContent = database[selectedOS][selectedLevel].problem;
+
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const s = String(elapsed % 60).padStart(2, '0');
+        document.getElementById('gameTimer').textContent = `TIME: ${m}:${s}`;
+      }, 1000);
+    }
+
+    document.getElementById('terminalInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const cmd = this.value.trim();
+        if (!cmd) return;
+
+        const output = document.getElementById('terminalOutput');
+        const promptText = document.getElementById('terminalPrompt').textContent;
+        
+        const echo = document.createElement('div');
+        echo.className = "text-green-400 mt-1";
+        echo.textContent = `${promptText} ${cmd}`;
+        output.appendChild(echo);
+
+        const reply = document.createElement('div');
+        reply.className = "text-slate-400 text-[11px] pl-2 whitespace-pre-wrap";
+
+        const scenario = database[selectedOS][selectedLevel];
+
+        if (cmd.toLowerCase() === 'help') {
+          reply.textContent = scenario.help;
+        } else if (cmd.toLowerCase() === 'clear') {
+          output.innerHTML = '';
+        } else if (cmd.toLowerCase() === 'diagnose' || (selectedOS === 'windows' && cmd.toLowerCase() === 'get-netipaddress') || (selectedOS === 'linux' && (cmd.toLowerCase() === 'ip addr' || cmd.toLowerCase() === 'ps aux' || cmd.toLowerCase() === 'iptables -l')) || (selectedOS === 'macos' && (cmd.toLowerCase() === 'lsof -i :8080' || cmd.toLowerCase() === 'diskutil list' || cmd.toLowerCase() === 'ls -la'))) {
+          if (stage === 1) {
+            reply.className = "text-yellow-600 text-[11px] pl-2";
+            reply.textContent = scenario.diagnose;
+            stage = 2;
+          } else {
+            reply.textContent = "Diagnostic cache matches initial baseline metrics configuration parameters.";
+          }
+        } else if (cmd === scenario.fixCmd || cmd.replace(/\s+/g, '') === scenario.fixCmd.replace(/\s+/g, '')) {
+          if (stage === 2) {
+            reply.className = "text-emerald-500 font-bold text-[11px] pl-2";
+            reply.textContent = scenario.nxtMsg;
+            setTimeout(() => endGame(), 3000);
+          } else {
+            reply.className = "text-red-700 text-[11px] pl-2";
+            reply.textContent = "Error: Input variables require diagnostic pipeline validation verification traces first.";
+          }
+        } else {
+          reply.className = "text-red-700 text-[11px] pl-2";
+          reply.textContent = `Command error parameter: '${cmd}' failed validation metrics testing routines.`;
+        }
+
+        output.appendChild(reply);
+        output.scrollTop = output.scrollHeight;
+        this.value = '';
+      }
+    });
+
+    function endGame() {
+      clearInterval(timerInterval);
+      document.getElementById('terminalScreen').classList.add('hidden');
+      document.getElementById('leaderboardScreen').classList.remove('hidden');
+      
+      const timeStr = document.getElementById('gameTimer').textContent;
+      document.getElementById('finalTimeMessage').textContent = `Completed configuration track in: ${timeStr.replace('TIME: ', '')}`;
+      renderLeaderboard();
+    }
+
+    function submitScore() {
+      const name = document.getElementById('playerNameInput').value.trim().toUpperCase() || "ANON";
+      const timeStr = document.getElementById('gameTimer').textContent.replace('TIME: ', '');
+      
+      const storageKey = `it_leaderboard_${selectedOS}_${selectedLevel}`;
+      let scores = JSON.parse(localStorage.getItem(storageKey)) || [];
+      
+      scores.push({ name, time: timeStr });
+      scores.sort((a, b) => a.time.localeCompare(b.time));
+      localStorage.setItem(storageKey, JSON.stringify(scores.slice(0, 10)));
+
+      document.getElementById('nameEntryArea').classList.add('hidden');
+      renderLeaderboard();
+    }
+
+    function renderLeaderboard() {
+      const storageKey = `it_leaderboard_${selectedOS}_${selectedLevel}`;
+      const scores = JSON.parse(localStorage.getItem(storageKey)) || [];
+      const list = document.getElementById('leaderboardList');
+      list.innerHTML = '';
+
+      if (scores.length === 0) {
+        list.innerHTML = '<p class="text-zinc-700 italic">No rankings recorded for this profile yet.</p>';
+        return;
+      }
+
+      scores.forEach((s, idx) => {
+        const row = document.createElement('div');
+        row.className = "flex justify-between border-b border-green-950/30 pb-0.5 text-[11px]";
+        row.innerHTML = `<span>${idx + 1}. ${s.name}</span> <span class="text-green-400 font-bold">${s.time}</span>`;
+        list.appendChild(row);
+      });
+    }
+  </script>
+</body>
 </html>
